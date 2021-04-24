@@ -17,21 +17,36 @@ public class ReadCSV {
         } else {return null;}
     }
 
-    public static BufferedReader priceReader (){
+    public static BufferedReader priceReader(){
         ReadCSV obj = new ReadCSV();
         InputStream priceFile = obj.getClass().getClassLoader().getResourceAsStream("Prices.csv");
-        if (priceFile != null){
-            return new BufferedReader(new InputStreamReader(priceFile));
-        } else {
-            System.out.println("Failed to read price file.");
-            return null;
-        }
+        return new BufferedReader(new InputStreamReader(priceFile));
     }
 
-    public static TimestampPrice readLineAsPrice(String line) {
-        String[] lineAsArray = line.split(",") ;
-        return parsePrice(lineAsArray);
+    public static TimestampPrice readLineAsPrice(String line){
+        String[] lineAsArray = line.split(",");
+        if (!lineAsArray[0].equals("timestamp")){
+            return parsePrice(lineAsArray);
+        } else {return null;}
     }
+
+//    public static BufferedReader priceReader (){
+//        ReadCSV obj = new ReadCSV();
+//        InputStream priceFile = obj.getClass().getClassLoader().getResourceAsStream("Prices.csv");
+//        if (priceFile != null){
+//            return new BufferedReader(new InputStreamReader(priceFile));
+//        } else {
+//            System.out.println("Failed to read price file.");
+//            return null;
+//        }
+//    }
+
+//    public static TimestampPrice readLineAsPrice(String line) {
+//        if (line != null){
+//            String[] lineAsArray = line.split(",") ;
+//            return parsePrice(lineAsArray);
+//        } else {return null;}
+//    }
 
     public static List<TimestampPrice> readPricesFromFile(InputStream priceFile) {
         BufferedReader priceReader = new BufferedReader(new InputStreamReader(priceFile));

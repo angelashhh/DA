@@ -64,6 +64,7 @@ public class TradeRecord {
                         .setTimestampPrice(latestPrice));
     }
 
+    //to do: set PNL!!!!
     public static TradeRecord createSellRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
         return builder(block ->
                 block.setTradeNumber(lastTradeRecord.getTradeNumber() + 1)

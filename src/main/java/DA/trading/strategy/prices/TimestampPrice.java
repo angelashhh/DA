@@ -40,4 +40,9 @@ public class TimestampPrice {
         return data;
     }
 
+    public static float toFourDecimal(float x){
+        DecimalFormat decimalFormat = new DecimalFormat("#.####");
+        return Float.parseFloat(decimalFormat.format(x));
+    }
+
 }
