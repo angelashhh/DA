@@ -1,11 +1,11 @@
-package DA.trading.strategy.data;
+package DA.trading.strategy.prices;
 
 import java.util.function.Consumer;
 
 public class TimestampPrice {
 
     private String timestamp;
-    private int timeInMilliseconds;
+    private Long timeInMilliseconds;
     private float price;
     private float volume;
 
@@ -15,8 +15,8 @@ public class TimestampPrice {
         return this;
     }
 
-    public int getTimeInMilliSeconds() {return timeInMilliseconds;}
-    public TimestampPrice setTimeInMilliseconds(int timeInMilliseconds) {
+    public Long getTimeInMilliSeconds() {return timeInMilliseconds;}
+    public TimestampPrice setTimeInMilliseconds(Long timeInMilliseconds) {
         this.timeInMilliseconds = timeInMilliseconds;
         return this;
     }

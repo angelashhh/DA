@@ -1,40 +1,48 @@
 package DA.trading.strategy.utils;
 
-import DA.trading.strategy.data.TimestampPrice;
+import DA.trading.strategy.prices.TimestampPrice;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
-import java.io.FileReader;
 import java.util.List;
 
 public class OpenCSV {
 
     public static TimestampPrice parsePrice(String[] line){
-        return TimestampPrice.builder(block -> block.setTimestamp(line[1])
-                .setTimeInMilliseconds(Integer.parseInt(line[2]))
-                .setPrice(Float.parseFloat(line[3]))
-                .setVolume(Float.parseFloat(line[4])));
+        if (!line[0].equals("timestamp")){
+            return TimestampPrice.builder(block -> block.setTimestamp(line[0])
+                    .setTimeInMilliseconds(Long.parseLong(line[1]))
+                    .setPrice(Float.parseFloat(line[2]))
+                    .setVolume(Float.parseFloat(line[3])));
+        } else {return null;}
     }
 
-    public static void priceScanner() {
-        String fileName = "/resources/Prices.csv";
+    public static List<TimestampPrice> readPricesFromFile(InputStream priceFile) {
+        BufferedReader priceReader = new BufferedReader(new InputStreamReader(priceFile));
         List<TimestampPrice> prices = new ArrayList<>();
         String line;
-
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileName));
-
-            while ((line = reader.readLine()) != null) {
+            while ((line = priceReader.readLine()) != null) {
                 String[] lineAsArray = line.split(",") ;
                 prices.add(parsePrice(lineAsArray));
             }
-            System.out.println("File import success.");
+            System.out.println("***Price import success***");
+            return prices;
         } catch (FileNotFoundException e) {
             System.out.println("ERROR: price file not found.");
+            return null;
         } catch (IOException e) {
             System.out.println("ERROR: cannot read price file.");
+            return null;
         }
+    }
+
+    public static List<TimestampPrice> getPrices() {
+        System.out.println("***Price import starting***");
+
+        OpenCSV obj = new OpenCSV();
+        InputStream priceFile = obj.getClass().getClassLoader().getResourceAsStream("Prices.csv");
+
+        return readPricesFromFile(priceFile);
     }
 }
