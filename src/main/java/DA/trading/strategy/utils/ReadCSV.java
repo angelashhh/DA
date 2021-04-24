@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenCSV {
+public class ReadCSV {
 
     public static TimestampPrice parsePrice(String[] line){
         if (!line[0].equals("timestamp")){
@@ -15,6 +15,22 @@ public class OpenCSV {
                     .setPrice(Float.parseFloat(line[2]))
                     .setVolume(Float.parseFloat(line[3])));
         } else {return null;}
+    }
+
+    public static BufferedReader priceReader (){
+        ReadCSV obj = new ReadCSV();
+        InputStream priceFile = obj.getClass().getClassLoader().getResourceAsStream("Prices.csv");
+        if (priceFile != null){
+            return new BufferedReader(new InputStreamReader(priceFile));
+        } else {
+            System.out.println("Failed to read price file.");
+            return null;
+        }
+    }
+
+    public static TimestampPrice readLineAsPrice(String line) {
+        String[] lineAsArray = line.split(",") ;
+        return parsePrice(lineAsArray);
     }
 
     public static List<TimestampPrice> readPricesFromFile(InputStream priceFile) {
@@ -40,7 +56,7 @@ public class OpenCSV {
     public static List<TimestampPrice> getPrices() {
         System.out.println("***Price import starting***");
 
-        OpenCSV obj = new OpenCSV();
+        ReadCSV obj = new ReadCSV();
         InputStream priceFile = obj.getClass().getClassLoader().getResourceAsStream("Prices.csv");
 
         return readPricesFromFile(priceFile);

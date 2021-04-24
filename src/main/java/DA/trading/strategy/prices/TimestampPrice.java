@@ -1,5 +1,6 @@
 package DA.trading.strategy.prices;
 
+import java.text.DecimalFormat;
 import java.util.function.Consumer;
 
 public class TimestampPrice {

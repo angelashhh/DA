@@ -7,7 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 
-public class OpenCSVTest {
+public class ReadCSVTest {
 
     @Test
     public void canParsePrice(){
@@ -16,6 +16,6 @@ public class OpenCSVTest {
                 .setTimeInMilliseconds(1593276720000l)
                 .setPrice(4.4972f)
                 .setVolume(4328.29f));
-        assertThat(OpenCSV.parsePrice(line), samePropertyValuesAs(expectedOutput));
+        assertThat(ReadCSV.parsePrice(line), samePropertyValuesAs(expectedOutput));
     }
 }
