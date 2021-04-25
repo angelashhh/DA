@@ -21,6 +21,8 @@ public class TradingImp {
     public static List<TimestampPrice> lastMPrices = new ArrayList<>();
     public static List<TimestampPrice> lastNPrices = new ArrayList<>();
 
+    public static List<TradeRecord> getTradeBook() {return tradeBook;}
+
     public  static void decideTradePerPrice(BufferedReader priceReader, int m, int n){
         int lineNumber = 0;
         String line;
