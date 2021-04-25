@@ -1,5 +1,7 @@
 package DA.trading.strategy.prices;
 
+import java.util.function.Consumer;
+
 public class SMAPrices {
 
     private float smaForM;
@@ -15,5 +17,11 @@ public class SMAPrices {
     public SMAPrices setSmaForN(float smaForN) {
         this.smaForN = smaForN;
         return this;
+    }
+
+    public static SMAPrices builder(Consumer<SMAPrices> block) {
+        SMAPrices data = new SMAPrices();
+        block.accept(data);
+        return data;
     }
 }

@@ -14,12 +14,4 @@ public class Commands {
         String[] inputStrings = StringUtils.split(scanner.nextLine(), " ");
         return Stream.of(inputStrings).mapToInt(Integer::parseInt).toArray();
     }
-
-    public static List<TimestampPrice> updateLastXPrices (int x, TimestampPrice latestPrice, List<TimestampPrice> xPrices){
-        if (xPrices.size() >= x){
-            xPrices.remove(0);
-        }
-        xPrices.add(latestPrice);
-        return xPrices;
-    }
 }

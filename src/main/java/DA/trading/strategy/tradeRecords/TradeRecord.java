@@ -56,6 +56,7 @@ public class TradeRecord {
         return data;
     }
 
+    //to do:  change below two func
     public static TradeRecord createBuyRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
         return builder(block ->
                 block.setTradeNumber(lastTradeRecord.getTradeNumber())
@@ -64,7 +65,6 @@ public class TradeRecord {
                         .setTimestampPrice(latestPrice));
     }
 
-    //to do: set PNL!!!!
     public static TradeRecord createSellRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
         return builder(block ->
                 block.setTradeNumber(lastTradeRecord.getTradeNumber() + 1)
