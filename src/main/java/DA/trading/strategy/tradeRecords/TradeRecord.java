@@ -1,8 +1,7 @@
 package DA.trading.strategy.tradeRecords;
 
 import DA.trading.strategy.prices.TimestampPrice;
-import DA.trading.strategy.trading.Constants;
-import org.apache.tomcat.util.bcel.Const;
+import DA.trading.strategy.utils.Constants;
 
 import java.text.DecimalFormat;
 import java.util.function.Consumer;

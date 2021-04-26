@@ -7,7 +7,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
-public class Commands {
+public class Intervals {
+    private int m;
+    private int n;
+
+    public int getM() {return m;}
+    public int getN() {return n;}
+
     public static int[] readInputAsIntervals(){
         System.out.println("Enter intervals m and n: ");
         Scanner scanner = new Scanner(System.in);

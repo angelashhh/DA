@@ -1,13 +1,11 @@
 package DA.trading.strategy.utils;
 
 import DA.trading.strategy.tradeRecords.TradeRecord;
-import DA.trading.strategy.trading.Constants;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
-import java.io.InputStream;
 
-public class TradeWriter {
+public class CsvWriter {
 
     public static CSVWriter createPriceWriter(String fileName){
         try {
@@ -19,17 +17,16 @@ public class TradeWriter {
         }
     }
 
-    public static void writeHeader(CSVWriter csvWriter){
+    public static void writeHeader(CSVWriter csvWriter, String[] headers){
         if (csvWriter != null){
-            String[] header = {"TradeNumber", "TradeTime", "TradeTimeInMilliSecond",
-                    "TradeSide", "TradeQuantity", "TradePrice", "PnlForCurrTrade", "NetPnl"};
+            String[] header = headers;
             csvWriter.writeNext(header);
         } else {
             System.out.println("ERROR: No Output CSV can be found.");
         }
     }
 
-    public static void writeRecord(CSVWriter csvWriter, TradeRecord tradeRecord){
+    public static void writeTradingRecord(CSVWriter csvWriter, TradeRecord tradeRecord){
         if (csvWriter != null){
           csvWriter.writeNext(parseTradeRecord(tradeRecord));
         } else {

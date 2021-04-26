@@ -1,4 +1,5 @@
 package DA.trading.strategy;
+import DA.trading.strategy.utils.Intervals;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

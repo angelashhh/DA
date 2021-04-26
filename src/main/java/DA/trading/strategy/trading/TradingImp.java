@@ -4,8 +4,9 @@ import DA.trading.strategy.prices.SMAPrices;
 import DA.trading.strategy.prices.SumPrices;
 import DA.trading.strategy.prices.TimestampPrice;
 import DA.trading.strategy.tradeRecords.TradeRecord;
+import DA.trading.strategy.utils.Constants;
 import DA.trading.strategy.utils.CsvReader;
-import DA.trading.strategy.utils.TradeWriter;
+import DA.trading.strategy.utils.CsvWriter;
 import com.opencsv.CSVWriter;
 
 import java.io.BufferedReader;
@@ -16,8 +17,8 @@ import java.util.List;
 public class TradingImp {
 
     public static void tradeAsPriceIsRead(BufferedReader priceReader, int m, int n){
-        CSVWriter tradeWriter = TradeWriter.createPriceWriter(Constants.OUTPUT_TRADES_CSV);
-        TradeWriter.writeHeader(tradeWriter);
+        CSVWriter tradeWriter = CsvWriter.createPriceWriter(Constants.OUTPUT_TRADES_CSV);
+        CsvWriter.writeHeader(tradeWriter, Constants.OUTPUT_HEADERS);
 
         int lineNumber = 0;
         String line;
@@ -39,7 +40,7 @@ public class TradingImp {
                         TradeRecord tradeRecordWithPnl = updateCurrAndNetPNL(deal, lastTradeRecord, netPosition);
 //                        System.out.println("tradeRecord " + tradeRecordWithPnl.getTradeQuantity() + "|" + tradeRecordWithPnl.getTradeTimestamp()
 //                                + "|" + tradeRecordWithPnl.getExecutedPrice() + "|" + tradeRecordWithPnl.getBuyFlag() + "|" + tradeRecordWithPnl.getNetPnl());
-                        TradeWriter.writeRecord(tradeWriter, tradeRecordWithPnl);
+                        CsvWriter.writeTradingRecord(tradeWriter, tradeRecordWithPnl);
                         lastTradeRecord = tradeRecordWithPnl;
                     }
                     updateLastPrices(m, n, latestPrice, lastMPrices, lastNPrices);
