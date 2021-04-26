@@ -1,25 +1,31 @@
 package DA.trading.strategy;
 
+import DA.trading.strategy.tradeRecords.TradeRecord;
+import DA.trading.strategy.trading.Constants;
 import DA.trading.strategy.trading.TradingImp;
 import DA.trading.strategy.utils.Commands;
-import DA.trading.strategy.utils.ReadCSV;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import DA.trading.strategy.utils.CsvReader;
+import DA.trading.strategy.utils.TradeWriter;
+import com.opencsv.CSVWriter;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Application {
-//
-//    public static void main (String[] args) {
-//        int[] intervals = Commands.readInputAsIntervals();
-//        int m = intervals[0];
-//        int n = intervals[1];
 
-public static void main () {
-    //hard coded for now to test spring app - to be replaced by reading input from gui
-        int m = 2;
-        int n = 3;
-        BufferedReader priceReader = ReadCSV.priceReader();
-        TradingImp.decideTradePerPrice(priceReader, m, n);
-    }
+//    public static void trade (int m, int n) {
+//        BufferedReader priceReader = CsvReader.fileReader(Constants.INPUT_PRICES_CSV);
+//        TradingImp.tradeAsPriceIsRead(priceReader, m, n);
+//    }
+//}
+
+//    Uncomment the below code to replace the above to create a command window programme
+    public static void main (String[] args) {
+        int[] intervals = Commands.readInputAsIntervals();
+        int m = intervals[0];
+        int n = intervals[1];
+        BufferedReader priceReader = CsvReader.fileReader(Constants.INPUT_PRICES_CSV);
+        TradingImp.tradeAsPriceIsRead(priceReader, m, n);
+        }
 }

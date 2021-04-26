@@ -2,6 +2,7 @@ package DA.trading.strategy.tradeRecords;
 
 import DA.trading.strategy.prices.TimestampPrice;
 import DA.trading.strategy.trading.Constants;
+import org.apache.tomcat.util.bcel.Const;
 
 import java.text.DecimalFormat;
 import java.util.function.Consumer;
@@ -70,25 +71,16 @@ public class TradeRecord {
         return data;
     }
 
-    //to do:  change below two func
-    public static TradeRecord createBuyRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
-        return builder(block ->
-                block.setTradeNumber(lastTradeRecord.getTradeNumber())
-                        .setBuyFlag(true)
-                        .setTradeQuantity(getTradeQuantity(latestPrice))
-                        .setTradeTimestamp(latestPrice.getTimestamp())
+    public static TradeRecord createTradeRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice, String option) {
+        TradeRecord record =  builder(block -> block.setTradeTimestamp(latestPrice.getTimestamp())
                         .setTradeTimeInMilliSecond(latestPrice.getTimeInMilliSeconds())
-                        .setExecutedPrice(latestPrice.getPrice()));
-    }
-
-    public static TradeRecord createSellRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
-        return builder(block ->
-                block.setTradeNumber(lastTradeRecord.getTradeNumber() + 1)
-                        .setBuyFlag(false)
-                        .setTradeQuantity(getTradeQuantity(latestPrice))
-                        .setTradeTimestamp(latestPrice.getTimestamp())
-                        .setTradeTimeInMilliSecond(latestPrice.getTimeInMilliSeconds())
-                        .setExecutedPrice(latestPrice.getPrice()));
+                        .setExecutedPrice(latestPrice.getPrice())
+                        .setTradeQuantity(getTradeQuantity(latestPrice)));
+        if (option.equals(Constants.BUY)){
+            return record.setBuyFlag(true).setTradeNumber(lastTradeRecord.getTradeNumber());
+        } else {
+            return record.setBuyFlag(false).setTradeNumber(lastTradeRecord.getTradeNumber() + 1);
+        }
     }
 
     private static float getTradeQuantity (TimestampPrice latestPrice){

@@ -1,5 +1,7 @@
 package DA.trading.strategy.prices;
 
+import java.util.function.Consumer;
+
 public class SumPrices {
 
     private float sumForM;
@@ -20,6 +22,12 @@ public class SumPrices {
     public SumPrices setSumForN(float sumForN) {
         this.sumForN = sumForN;
         return this;
+    }
+
+    public static SumPrices builder(Consumer<SumPrices> block) {
+        SumPrices data = new SumPrices();
+        block.accept(data);
+        return data;
     }
 
 }

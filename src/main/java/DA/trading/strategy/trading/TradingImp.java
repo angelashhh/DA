@@ -4,109 +4,81 @@ import DA.trading.strategy.prices.SMAPrices;
 import DA.trading.strategy.prices.SumPrices;
 import DA.trading.strategy.prices.TimestampPrice;
 import DA.trading.strategy.tradeRecords.TradeRecord;
-import DA.trading.strategy.utils.ReadCSV;
+import DA.trading.strategy.utils.CsvReader;
+import DA.trading.strategy.utils.TradeWriter;
+import com.opencsv.CSVWriter;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TradingImp {
 
-    private static List<TradeRecord> tradeBook = new ArrayList<>();
-    private static SumPrices lastSums = new SumPrices();
-    private static float netPosition = 0;
-    private static TradeRecord lastTradeRecord = new TradeRecord();
-    public static List<TimestampPrice> lastMPrices = new ArrayList<>();
-    public static List<TimestampPrice> lastNPrices = new ArrayList<>();
+    public static void tradeAsPriceIsRead(BufferedReader priceReader, int m, int n){
+        CSVWriter tradeWriter = TradeWriter.createPriceWriter(Constants.OUTPUT_TRADES_CSV);
+        TradeWriter.writeHeader(tradeWriter);
 
-    public static List<TradeRecord> getTradeBook() {return tradeBook;}
-
-    public  static void decideTradePerPrice(BufferedReader priceReader, int m, int n){
         int lineNumber = 0;
         String line;
+        List<TimestampPrice> lastMPrices =  TimestampPrice.buildEmptyPrices(m);
+        List<TimestampPrice> lastNPrices = TimestampPrice.buildEmptyPrices(n);
+        SumPrices currSums = SumPrices.builder(block -> block.setSumForM(0).setSumForN(0));
+        TradeRecord lastTradeRecord = new TradeRecord();
+        float netPosition = 0;
 
         try {
             while ((line = priceReader.readLine()) != null) {
-                TimestampPrice latestPrice = ReadCSV.readLineAsPrice(line);
+                TimestampPrice latestPrice = CsvReader.readLineAsPrice(line);
                 if (latestPrice != null) {
                     lineNumber += 1;
-                    tradeUsingSMA(lineNumber, m, n, latestPrice);
+                        currSums.setSumPrices(calcSums(lastMPrices, lastNPrices, latestPrice, currSums));
+                        TradeRecord deal = decideTrade(currSums, m, n, lineNumber, latestPrice, lastTradeRecord);
+                    if (deal != null){
+                        netPosition = updateNetPosition(deal, netPosition);
+                        TradeRecord tradeRecordWithPnl = updateCurrAndNetPNL(deal, lastTradeRecord, netPosition);
+//                        System.out.println("tradeRecord " + tradeRecordWithPnl.getTradeQuantity() + "|" + tradeRecordWithPnl.getTradeTimestamp()
+//                                + "|" + tradeRecordWithPnl.getExecutedPrice() + "|" + tradeRecordWithPnl.getBuyFlag() + "|" + tradeRecordWithPnl.getNetPnl());
+                        TradeWriter.writeRecord(tradeWriter, tradeRecordWithPnl);
+                        lastTradeRecord = tradeRecordWithPnl;
+                    }
+                    updateLastPrices(m, n, latestPrice, lastMPrices, lastNPrices);
                 }
             }
+            tradeWriter.close();
         } catch (FileNotFoundException e) {
             System.out.println("ERROR: price file not found.");
         } catch (IOException e) {
-            System.out.println("ERROR: cannot read price file.");
+            System.out.println("ERROR: cannot read or write price file.");
         }
         System.out.println("Finished processing " +lineNumber + " trades.");
     }
 
-    public static void tradeUsingSMA(int lineNumber, int m, int n, TimestampPrice latestPrice) {
-        if (lineNumber >= m) {
-            SumPrices currSums = calcSums(m, n, lineNumber, lastMPrices, lastNPrices, latestPrice);
-            if (lineNumber >= n) {
-                TradingImp.trade(currSums, m, n, latestPrice);
-            }
-        }
-        updateLastPrices(m, n, latestPrice);
-    }
-
-    public static void trade(SumPrices currSums, int m, int n, TimestampPrice latestPrice) {
-        SMAPrices currSMAs = calcSMAs(currSums, m, n);
-        TradeRecord deal = buyOrSell(currSMAs, latestPrice);
-        if (deal != null){
-            executeTrade(deal);
-        }
-    }
-
-    public static TradeRecord buyOrSell (SMAPrices smaPrices, TimestampPrice latestPrice){
-        if (smaPrices.getSmaForM() > smaPrices.getSmaForN() && !lastTradeRecord.getBuyFlag()){ //buyflag = true => can buy
-            return TradeRecord.createBuyRecord(lastTradeRecord, latestPrice);
-        } else if (smaPrices.getSmaForM() < smaPrices.getSmaForN() && lastTradeRecord.getBuyFlag()){
-            return TradeRecord.createSellRecord(lastTradeRecord, latestPrice);
+    public static TradeRecord decideTrade(SumPrices currSums, int m, int n, int lineNumber,
+                                          TimestampPrice latestPrice, TradeRecord lastTradeRecord) {
+        if (lineNumber >= n && currSums != null) {
+            SMAPrices currSMAs = calcSMAs(currSums, m, n);
+            return buyOrSell(currSMAs, latestPrice, lastTradeRecord);
         } else {return null;}
     }
 
-    public static void executeTrade(TradeRecord tradeRecord){
-        updateNetPosition(tradeRecord);
-        tradeRecord = updateCurrAndNetPNL(tradeRecord);
-        System.out.println("tradeRecord " + tradeRecord.getTradeQuantity() + "|" + tradeRecord.getTradeTimestamp()
-                + "|" + tradeRecord.getExecutedPrice() + "|" + tradeRecord.getBuyFlag() + "|" + tradeRecord.getNetPnl());
-        tradeBook.add(tradeRecord);
-        lastTradeRecord = tradeRecord;
+    public static TradeRecord buyOrSell(SMAPrices smaPrices, TimestampPrice latestPrice, TradeRecord lastTradeRecord){
+        if (smaPrices.getSmaForM() > smaPrices.getSmaForN() && !lastTradeRecord.getBuyFlag()){
+            return TradeRecord.createTradeRecord(lastTradeRecord, latestPrice, Constants.BUY);
+        } else if (smaPrices.getSmaForM() < smaPrices.getSmaForN() && lastTradeRecord.getBuyFlag()){
+            return TradeRecord.createTradeRecord(lastTradeRecord, latestPrice, Constants.SELL);
+        } else {return null;}
     }
 
-    public static SumPrices calcSums(int m, int n, int rowNumber,
-                                  List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices,
-                                  TimestampPrice latestPrice){
-        SumPrices currSums = new SumPrices();
-        currSums.setSumForM(calcSum(m, rowNumber, lastSums.getSumForM(), latestPrice, lastMPrices));
-        currSums.setSumForN(calcSum(n, rowNumber, lastSums.getSumForN(), latestPrice, lastNPrices));
-        lastSums = currSums;
+    public static SumPrices calcSums(List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices,
+                                  TimestampPrice latestPrice, SumPrices currSums){
+        currSums.setSumForM(calcSum(currSums.getSumForM(), latestPrice, lastMPrices));
+        currSums.setSumForN(calcSum(currSums.getSumForN(), latestPrice, lastNPrices));
         return currSums;
     }
 
-    public static float calcSum(int x, int lineNumber, float lastSum,
-                                TimestampPrice latestPrice, List<TimestampPrice> lastPrices){
-        if (lineNumber > x){
-            return TimestampPrice.toFourDecimal(quickSum(lastSum, latestPrice, lastPrices.get(0)));
-        } else {
-            return TimestampPrice.toFourDecimal(slowSum(lastPrices, latestPrice));
-        }
-    }
-
-    public static float quickSum(float sumForLastXPrices, TimestampPrice latestPrice, TimestampPrice firstPriceInX){
-        return sumForLastXPrices + latestPrice.getPrice() - firstPriceInX.getPrice();
-    }
-
-    public static float slowSum(List<TimestampPrice> lastPrices, TimestampPrice latestPrice){
-        float sum = 0;
-        for (TimestampPrice p: lastPrices){
-            sum += p.getPrice();
-        }
-        return sum + latestPrice.getPrice();
+    public static float calcSum(float lastSum, TimestampPrice latestPrice, List<TimestampPrice> lastPrices){
+        return TimestampPrice.toFourDecimal(lastSum + latestPrice.getPrice() - lastPrices.get(0).getPrice());
     }
 
     public static SMAPrices calcSMAs(SumPrices currSums, int m, int n){
@@ -116,31 +88,34 @@ public class TradingImp {
         return currSMAPrices;
     }
 
-    public static void updateNetPosition(TradeRecord tradeRecord){
+    public static float updateNetPosition(TradeRecord tradeRecord, float netPosition){
         if (tradeRecord.getBuyFlag()) {
             netPosition += tradeRecord.getTradeQuantity();
         } else {
             netPosition -= tradeRecord.getTradeQuantity();
         }
+        return netPosition;
     }
 
-    public static TradeRecord updateCurrAndNetPNL(TradeRecord tradeRecord){
+    public static TradeRecord updateCurrAndNetPNL(TradeRecord tradeRecord, TradeRecord lastTradeRecord, float netPosition){
         if (!tradeRecord.getBuyFlag()) {
-            tradeRecord.setPnlForCurrTrade(calcCurrPNL(tradeRecord)).setNetPnl(calcNetPNL(tradeRecord));
+            tradeRecord.setPnlForCurrTrade(calcCurrPNL(tradeRecord, lastTradeRecord))
+                    .setNetPnl(calcNetPNL(tradeRecord, netPosition));
         }
         return tradeRecord;
     }
 
-    public static float calcCurrPNL(TradeRecord tradeRecord){
+    public static float calcCurrPNL(TradeRecord tradeRecord, TradeRecord lastTradeRecord){
         return tradeRecord.getExecutedPrice() * (
                 tradeRecord.getTradeQuantity()- lastTradeRecord.getTradeQuantity());
     }
 
-    public static float calcNetPNL(TradeRecord tradeRecord){
+    public static float calcNetPNL(TradeRecord tradeRecord, float netPosition){
         return netPosition * tradeRecord.getExecutedPrice();
     }
 
-    private static void updateLastPrices(int m, int n, TimestampPrice latestPrice){
+    private static void updateLastPrices(int m, int n, TimestampPrice latestPrice,
+                                         List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices){
         updateLastXPrices(m, latestPrice, lastMPrices);
         updateLastXPrices(n, latestPrice, lastNPrices);
     }
@@ -152,11 +127,4 @@ public class TradingImp {
         xPrices.add(latestPrice);
     }
 
-    //below functions are created only for testing use
-    public float getNetPosition() {return netPosition;}
-
-    public TradingImp setLastTradeRecord(TradeRecord lastTradeRecord) {
-        this.lastTradeRecord = lastTradeRecord;
-        return this;
-    }
 }

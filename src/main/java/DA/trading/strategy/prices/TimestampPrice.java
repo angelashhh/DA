@@ -1,6 +1,9 @@
 package DA.trading.strategy.prices;
 
+import java.sql.Time;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class TimestampPrice {
@@ -38,6 +41,16 @@ public class TimestampPrice {
         TimestampPrice data = new TimestampPrice();
         block.accept(data);
         return data;
+    }
+
+    public static List<TimestampPrice> buildEmptyPrices (int x) {
+        TimestampPrice dummyPrice = TimestampPrice.builder(block -> block.setTimeInMilliseconds(0l)
+                .setTimestamp("").setVolume(0).setPrice(0));
+        List<TimestampPrice> prices = new ArrayList<>();
+        for (int i = 0; i < x; i++){
+            prices.add(dummyPrice);
+        }
+        return prices;
     }
 
     public static float toFourDecimal(float x){
