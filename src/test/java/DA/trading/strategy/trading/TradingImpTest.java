@@ -55,7 +55,7 @@ public class TradingImpTest {
         TimestampPrice latestPrice = TimestampPrice.builder(block ->
                 block.setPrice(4.0000f).setTimeInMilliseconds(1234567890l).setVolume(10));
         TradeRecord expectedBuyRecord = TradeRecord.builder(block -> block.setBuyFlag(true).setTradeQuantity(5f)
-                .setTimestampPrice(latestPrice).setTradeNumber(0));
+                .setExecutedPrice(latestPrice.getPrice()).setTradeNumber(0));
         TradeRecord actualTrade = TradingImp.buyOrSell(smaPrices, latestPrice);
         assertThat(actualTrade, samePropertyValuesAs(expectedBuyRecord));
     }
@@ -68,7 +68,7 @@ public class TradingImpTest {
         TimestampPrice latestPrice = TimestampPrice.builder(block ->
                 block.setPrice(4.0000f).setTimeInMilliseconds(1234567890l).setVolume(10));
         TradeRecord expectedBuyRecord = TradeRecord.builder(block -> block.setBuyFlag(false).setTradeQuantity(5f)
-                .setTimestampPrice(latestPrice).setTradeNumber(1));
+                .setExecutedPrice(latestPrice.getPrice()).setTradeNumber(1));
         TradeRecord actualTrade = TradingImp.buyOrSell(smaPrices, latestPrice);
         assertThat(actualTrade, samePropertyValuesAs(expectedBuyRecord));
     }

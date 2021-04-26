@@ -72,8 +72,8 @@ public class TradingImp {
     public static void executeTrade(TradeRecord tradeRecord){
         updateNetPosition(tradeRecord);
         tradeRecord = updateCurrAndNetPNL(tradeRecord);
-        System.out.println("tradeRecord " + tradeRecord.getTradeQuantity() + "|" + tradeRecord.getTimestampPrice().getTimestamp()
-                + "|" + tradeRecord.getTimestampPrice().getPrice() + "|" + tradeRecord.getBuyFlag() + "|" + tradeRecord.getNetPnl());
+        System.out.println("tradeRecord " + tradeRecord.getTradeQuantity() + "|" + tradeRecord.getTradeTimestamp()
+                + "|" + tradeRecord.getExecutedPrice() + "|" + tradeRecord.getBuyFlag() + "|" + tradeRecord.getNetPnl());
         tradeBook.add(tradeRecord);
         lastTradeRecord = tradeRecord;
     }
@@ -132,12 +132,12 @@ public class TradingImp {
     }
 
     public static float calcCurrPNL(TradeRecord tradeRecord){
-        return tradeRecord.getTimestampPrice().getPrice() * (
+        return tradeRecord.getExecutedPrice() * (
                 tradeRecord.getTradeQuantity()- lastTradeRecord.getTradeQuantity());
     }
 
     public static float calcNetPNL(TradeRecord tradeRecord){
-        return netPosition * tradeRecord.getTimestampPrice().getPrice();
+        return netPosition * tradeRecord.getExecutedPrice();
     }
 
     private static void updateLastPrices(int m, int n, TimestampPrice latestPrice){

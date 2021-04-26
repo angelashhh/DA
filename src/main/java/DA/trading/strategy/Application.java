@@ -9,12 +9,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.io.*;
 
 public class Application {
-
+//
 //    public static void main (String[] args) {
 //        int[] intervals = Commands.readInputAsIntervals();
 //        int m = intervals[0];
 //        int n = intervals[1];
+
 public static void main () {
+    //hard coded for now to test spring app - to be replaced by reading input from gui
         int m = 2;
         int n = 3;
         BufferedReader priceReader = ReadCSV.priceReader();

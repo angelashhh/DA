@@ -8,7 +8,9 @@ import java.util.function.Consumer;
 
 public class TradeRecord {
     private int tradeNumber;
-    private TimestampPrice timestampPrice;
+    private String tradeTimestamp;
+    private long tradeTimeInMilliSecond;
+    private float executedPrice;
     private boolean buyFlag;
     private float tradeQuantity;
     private float pnlForCurrTrade;
@@ -20,9 +22,21 @@ public class TradeRecord {
         return this;
     }
 
-    public TimestampPrice getTimestampPrice() {return timestampPrice;}
-    public TradeRecord setTimestampPrice(TimestampPrice timestampPrice){
-        this.timestampPrice = timestampPrice;
+    public String getTradeTimestamp() {return tradeTimestamp;}
+    public TradeRecord setTradeTimestamp(String tradeTimestamp) {
+        this.tradeTimestamp = tradeTimestamp;
+        return this;
+    }
+
+    public long getTradeTimeInMilliSecond() {return tradeTimeInMilliSecond;}
+    public TradeRecord setTradeTimeInMilliSecond(long tradeTimeInMilliSecond) {
+        this.tradeTimeInMilliSecond = tradeTimeInMilliSecond;
+        return this;
+    }
+
+    public float getExecutedPrice() {return executedPrice;}
+    public TradeRecord setExecutedPrice(float executedPrice) {
+        this.executedPrice = executedPrice;
         return this;
     }
 
@@ -62,7 +76,9 @@ public class TradeRecord {
                 block.setTradeNumber(lastTradeRecord.getTradeNumber())
                         .setBuyFlag(true)
                         .setTradeQuantity(getTradeQuantity(latestPrice))
-                        .setTimestampPrice(latestPrice));
+                        .setTradeTimestamp(latestPrice.getTimestamp())
+                        .setTradeTimeInMilliSecond(latestPrice.getTimeInMilliSeconds())
+                        .setExecutedPrice(latestPrice.getPrice()));
     }
 
     public static TradeRecord createSellRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice) {
@@ -70,7 +86,9 @@ public class TradeRecord {
                 block.setTradeNumber(lastTradeRecord.getTradeNumber() + 1)
                         .setBuyFlag(false)
                         .setTradeQuantity(getTradeQuantity(latestPrice))
-                        .setTimestampPrice(latestPrice));
+                        .setTradeTimestamp(latestPrice.getTimestamp())
+                        .setTradeTimeInMilliSecond(latestPrice.getTimeInMilliSeconds())
+                        .setExecutedPrice(latestPrice.getPrice()));
     }
 
     private static float getTradeQuantity (TimestampPrice latestPrice){

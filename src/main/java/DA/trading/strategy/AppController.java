@@ -22,10 +22,10 @@ public class AppController {
         System.out.println("WOWOWOW " + intervals);
     }
 
-    @GetMapping("/result")
-    public List<TradeRecord> tradeResult() {
-        Application.main();
-        return TradingImp.getTradeBook();
-    }
+//    @GetMapping("/result")
+//    public List<TradeRecord> tradeResult() {
+//        Application.main();
+//        return TradingImp.getTradeBook();
+//    }
 
 }
