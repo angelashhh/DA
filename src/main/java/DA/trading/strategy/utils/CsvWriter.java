@@ -2,6 +2,7 @@ package DA.trading.strategy.utils;
 
 import DA.trading.strategy.tradeRecords.TradeRecord;
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 
 import java.io.FileWriter;
 
@@ -10,7 +11,9 @@ public class CsvWriter {
     public static CSVWriter createPriceWriter(String fileName){
         try {
             FileWriter output = new FileWriter(fileName);
-            return new CSVWriter(output);
+            CSVWriter writer = new CSVWriter(output, ',', CSVWriter.NO_QUOTE_CHARACTER,
+                    CSVWriter.NO_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+            return writer;
         } catch (Exception e) {
             System.out.println("ERROR: No Output CSV can be found.");
             return null;
