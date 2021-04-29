@@ -10,6 +10,7 @@ import com.opencsv.CSVWriter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,20 @@ public class AppController {
     public void tradeWithDefinedIntervals(@RequestBody Intervals intervals) {
         System.out.println("Received M and N: " + intervals.getM() + "|" + intervals.getN());
         Application.trade(intervals.getM(), intervals.getN());
+    }
+
+    @GetMapping("/prices")
+    public List<TimestampPrice> readPrices() throws IOException {
+        BufferedReader br = CsvReader.fileReader(Constants.INPUT_PRICES_CSV);
+        List<TimestampPrice> prices = new ArrayList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            TimestampPrice price = CsvReader.readLineAsPrice(line);
+            if (price != null ) {
+                prices.add(price);
+            }
+        }
+        return prices;
     }
 
     @GetMapping("/results")

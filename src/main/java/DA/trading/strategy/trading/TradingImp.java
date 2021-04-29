@@ -36,7 +36,7 @@ public class TradingImp {
                         currSums.setSumPrices(calcSums(lastMPrices, lastNPrices, latestPrice, currSums));
                         TradeRecord tradeRecord = decideTrade(currSums, m, n, lineNumber, latestPrice, lastTradeRecord);
                     if (tradeRecord != null){
-                        //maybe write the below four lines as post-trade functions?
+                        //todo: maybe write the below four lines as post-trade functions?
                        float currPNl = calcCurrPNL(tradeRecord, lastTradeRecord);
                        netPNL += currPNl;
                        TradeRecord tradeRecordWithPnl = updatePnls(tradeRecord, currPNl, netPNL);
@@ -57,7 +57,7 @@ public class TradingImp {
 
     public static TradeRecord decideTrade(SumPrices currSums, int m, int n, int lineNumber,
                                           TimestampPrice latestPrice, TradeRecord lastTradeRecord) {
-        if (lineNumber >= n && currSums != null) {
+        if (lineNumber >= n) {
             SMAPrices currSMAs = calcSMAs(currSums, m, n);
             return buyOrSell(currSMAs, latestPrice, lastTradeRecord);
         } else {return null;}

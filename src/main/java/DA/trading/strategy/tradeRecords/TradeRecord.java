@@ -76,9 +76,9 @@ public class TradeRecord {
                         .setExecutedPrice(latestPrice.getPrice())
                         .setTradeQuantity(getTradeQuantity(latestPrice)));
         if (option.equals(Constants.BUY)){
-            return record.setBuyFlag(true).setTradeNumber(lastTradeRecord.getTradeNumber());
+            return record.setBuyFlag(true).setTradeNumber(lastTradeRecord.getTradeNumber() + 1);
         } else {
-            return record.setBuyFlag(false).setTradeNumber(lastTradeRecord.getTradeNumber() + 1);
+            return record.setBuyFlag(false).setTradeNumber(lastTradeRecord.getTradeNumber());
         }
     }
 
