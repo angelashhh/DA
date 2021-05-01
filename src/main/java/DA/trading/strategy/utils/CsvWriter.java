@@ -2,7 +2,6 @@ package DA.trading.strategy.utils;
 
 import DA.trading.strategy.tradeRecords.TradeRecord;
 import com.opencsv.CSVWriter;
-import com.opencsv.ICSVWriter;
 
 import java.io.FileWriter;
 

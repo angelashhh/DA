@@ -36,11 +36,10 @@ public class TradingImp {
                         currSums.setSumPrices(calcSums(lastMPrices, lastNPrices, latestPrice, currSums));
                         TradeRecord tradeRecord = decideTrade(currSums, m, n, lineNumber, latestPrice, lastTradeRecord);
                     if (tradeRecord != null){
-                        //todo: maybe write the below four lines as post-trade functions?
                        float currPNl = calcCurrPNL(tradeRecord, lastTradeRecord);
                        netPNL += currPNl;
-                       TradeRecord tradeRecordWithPnl = updatePnls(tradeRecord, currPNl, netPNL);
-                       CsvWriter.writeTradingRecord(tradeWriter, tradeRecordWithPnl);
+                       TradeRecord tradeRecordWithPnl = updateTradeRecordWithPnls(tradeRecord, currPNl, netPNL);
+                       CsvWriter.writeTradingRecord(tradeWriter, updateTradeRecordWithPnls(tradeRecord, currPNl, netPNL));
                        lastTradeRecord = tradeRecordWithPnl;
                     }
                     updateLastPrices(m, n, latestPrice, lastMPrices, lastNPrices);
@@ -107,13 +106,14 @@ public class TradingImp {
     }
 
     public static float calcCurrPNL(TradeRecord tradeRecord, TradeRecord lastTradeRecord){
-        return  tradeRecord.getTradeQuantity() * (
-                tradeRecord.getExecutedPrice() - lastTradeRecord.getExecutedPrice());
+        if (!tradeRecord.getBuyFlag()){
+            return  tradeRecord.getTradeQuantity() * (
+                    tradeRecord.getExecutedPrice() - lastTradeRecord.getExecutedPrice());
+        } else {return 0;}
     }
 
-    public static TradeRecord updatePnls(TradeRecord trade, float currPnl, float netPnl){
-        if (!trade.getBuyFlag()) {return trade.setPnlForCurrTrade(currPnl)
-                .setNetPnl(netPnl); }
+    public static TradeRecord updateTradeRecordWithPnls(TradeRecord trade, float currPnl, float netPnl){
+        if (!trade.getBuyFlag()) {return trade.setPnlForCurrTrade(currPnl).setNetPnl(netPnl); }
         else {return trade; }
     }
 

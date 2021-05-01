@@ -73,16 +73,19 @@ public class TradeRecord {
     public static TradeRecord createTradeRecord (TradeRecord lastTradeRecord, TimestampPrice latestPrice, String option) {
         TradeRecord record =  builder(block -> block.setTradeTimestamp(latestPrice.getTimestamp())
                         .setTradeTimeInMilliSecond(latestPrice.getTimeInMilliSeconds())
-                        .setExecutedPrice(latestPrice.getPrice())
-                        .setTradeQuantity(getTradeQuantity(latestPrice)));
+                        .setExecutedPrice(latestPrice.getPrice()));
         if (option.equals(Constants.BUY)){
-            return record.setBuyFlag(true).setTradeNumber(lastTradeRecord.getTradeNumber() + 1);
+            return record.setBuyFlag(true)
+                    .setTradeNumber(lastTradeRecord.getTradeNumber() + 1)
+                    .setTradeQuantity(calcTradeQuantity(latestPrice));
         } else {
-            return record.setBuyFlag(false).setTradeNumber(lastTradeRecord.getTradeNumber());
+            return record.setBuyFlag(false)
+                    .setTradeNumber(lastTradeRecord.getTradeNumber())
+                    .setTradeQuantity(lastTradeRecord.getTradeQuantity());
         }
     }
 
-    private static float getTradeQuantity (TimestampPrice latestPrice){
+    private static float calcTradeQuantity(TimestampPrice latestPrice){
         return TradeRecord.toFourDecimal(Constants.FIXED_NOTION / latestPrice.getPrice());
     }
 
