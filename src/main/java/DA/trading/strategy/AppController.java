@@ -40,7 +40,7 @@ public class AppController {
 
     @GetMapping("/results")
     public  List<TradeRecord> readTradeResults() throws IOException {
-        String fileName = "/Users/apple/Downloads/trading-strategy/Trades.csv";
+        String fileName = Constants.OUTPUT_TRADES_CSV;
         String line;
         BufferedReader br = new BufferedReader(new FileReader (fileName));
         List<TradeRecord> tradeBook = new ArrayList<>();

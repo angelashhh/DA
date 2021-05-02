@@ -1,6 +1,6 @@
 package DA.trading.strategy.prices;
 
-import java.util.function.Consumer;
+import java.util.List;
 
 public class SumPrices {
 
@@ -19,10 +19,16 @@ public class SumPrices {
         return this;
     }
 
-    public static SumPrices builder(Consumer<SumPrices> block) {
-        SumPrices data = new SumPrices();
-        block.accept(data);
-        return data;
+    public static SumPrices calcSums(List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices,
+                                     TimestampPrice latestPrice, SumPrices lastSums){
+        SumPrices currSums = new SumPrices();
+        currSums.setSumForM(calcSum(lastSums.getSumForM(), latestPrice, lastMPrices));
+        currSums.setSumForN(calcSum(lastSums.getSumForN(), latestPrice, lastNPrices));
+        return currSums;
+    }
+
+    private static float calcSum(float lastSum, TimestampPrice latestPrice, List<TimestampPrice> lastPrices){
+        return TimestampPrice.toFourDecimal(lastSum + latestPrice.getPrice() - lastPrices.get(0).getPrice());
     }
 
 }

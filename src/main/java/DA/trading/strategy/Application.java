@@ -1,7 +1,12 @@
 package DA.trading.strategy;
 
+import DA.trading.strategy.prices.SMAPrices;
+import DA.trading.strategy.prices.SumPrices;
+import DA.trading.strategy.prices.TimestampPrice;
+import DA.trading.strategy.tradeRecords.TradeRecord;
 import DA.trading.strategy.utils.Constants;
 import DA.trading.strategy.trading.TradingImp;
+import DA.trading.strategy.utils.CsvWriter;
 import DA.trading.strategy.utils.Intervals;
 import DA.trading.strategy.utils.CsvReader;
 
@@ -22,5 +27,5 @@ public class Application {
 //        int n = intervals[1];
 //        BufferedReader priceReader = CsvReader.fileReader(Constants.INPUT_PRICES_CSV);
 //        TradingImp.tradeAsPriceIsRead(priceReader, m, n);
-//        }
+//    }
 //}

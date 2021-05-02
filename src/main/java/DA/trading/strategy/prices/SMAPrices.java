@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 
 public class SMAPrices {
 
-    private float smaForM;
-    private float smaForN;
+    float smaForM;
+    float smaForN;
 
     public float getSmaForM() {return smaForM;}
     public SMAPrices setSmaForM(float smaForM) {
@@ -23,5 +23,12 @@ public class SMAPrices {
         SMAPrices data = new SMAPrices();
         block.accept(data);
         return data;
+    }
+
+    public static SMAPrices calcSMAs(SumPrices currSums, int m, int n){
+        SMAPrices currSMAPrices = new SMAPrices();
+        currSMAPrices.setSmaForM(currSums.getSumForM() / m);
+        currSMAPrices.setSmaForN(currSums.getSumForN() / n);
+        return currSMAPrices;
     }
 }
