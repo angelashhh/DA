@@ -26,16 +26,6 @@ public class TradingImpTest {
         assertThat(TradingImp.calcSum(sumForLastXPrices, latestPrice, lastTwoPrices), is(5.0000f));
     }
 
-    @Test
-    public void updateNetPositionTest(){
-        float netPosition = 100f;
-        TradeRecord buyTrade = TradeRecord.builder(block -> block.setBuyFlag(true).setTradeQuantity(100.0000f));
-        TradeRecord sellTrade = TradeRecord.builder(block -> block.setBuyFlag(false).setTradeQuantity(20.0000f));
-        float newNetPositionAfterBuy = TradingImp.updateNetPosition(buyTrade, netPosition);
-        assertThat(newNetPositionAfterBuy, is(200.0000f));
-        float newNetPositionAfterSell = TradingImp.updateNetPosition(sellTrade, newNetPositionAfterBuy);
-        assertThat(newNetPositionAfterSell, is(180.0000f));
-    }
 
     @Test
     public void canDecideBuy(){

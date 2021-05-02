@@ -33,14 +33,13 @@ public class TradingImp {
                 TimestampPrice latestPrice = CsvReader.readLineAsPrice(line);
                 if (latestPrice != null) {
                     lineNumber += 1;
-                        currSums.setSumPrices(calcSums(lastMPrices, lastNPrices, latestPrice, currSums));
+                        calcSums(lastMPrices, lastNPrices, latestPrice, currSums);
                         TradeRecord tradeRecord = decideTrade(currSums, m, n, lineNumber, latestPrice, lastTradeRecord);
                     if (tradeRecord != null){
-                       float currPNl = calcCurrPNL(tradeRecord, lastTradeRecord);
-                       netPNL += currPNl;
-                       TradeRecord tradeRecordWithPnl = updateTradeRecordWithPnls(tradeRecord, currPNl, netPNL);
-                       CsvWriter.writeTradingRecord(tradeWriter, updateTradeRecordWithPnls(tradeRecord, currPNl, netPNL));
-                       lastTradeRecord = tradeRecordWithPnl;
+                        TradeRecord tradeRecordWithPnl = enrichTradeRecordWithPnl(tradeRecord, lastTradeRecord, netPNL);
+                        netPNL += tradeRecordWithPnl.getPnlForCurrTrade();
+                        CsvWriter.writeTradingRecord(tradeWriter, tradeRecordWithPnl);
+                        lastTradeRecord = tradeRecordWithPnl;
                     }
                     updateLastPrices(m, n, latestPrice, lastMPrices, lastNPrices);
                 }
@@ -51,7 +50,7 @@ public class TradingImp {
         } catch (IOException e) {
             System.out.println("ERROR: cannot read or write price file.");
         }
-        System.out.println("Finished processing " +lineNumber + " trades.");
+        System.out.println("Finished processing " + lineNumber + " trades.");
     }
 
     public static TradeRecord decideTrade(SumPrices currSums, int m, int n, int lineNumber,
@@ -70,11 +69,10 @@ public class TradingImp {
         } else {return null;}
     }
 
-    public static SumPrices calcSums(List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices,
+    public static void calcSums(List<TimestampPrice> lastMPrices, List<TimestampPrice> lastNPrices,
                                   TimestampPrice latestPrice, SumPrices currSums){
         currSums.setSumForM(calcSum(currSums.getSumForM(), latestPrice, lastMPrices));
         currSums.setSumForN(calcSum(currSums.getSumForN(), latestPrice, lastNPrices));
-        return currSums;
     }
 
     public static float calcSum(float lastSum, TimestampPrice latestPrice, List<TimestampPrice> lastPrices){
@@ -88,37 +86,12 @@ public class TradingImp {
         return currSMAPrices;
     }
 
-    public static float updateNetPosition(TradeRecord tradeRecord, float netPosition){
-        if (tradeRecord.getBuyFlag()) {
-            netPosition += tradeRecord.getTradeQuantity();
-        } else {
-            netPosition -= tradeRecord.getTradeQuantity();
-        }
-        return netPosition;
-    }
-
-    public static TradeRecord updateCurrAndNetPNL(TradeRecord tradeRecord, TradeRecord lastTradeRecord, float netPNL){
-        if (!tradeRecord.getBuyFlag()) {
-            float currPNL = calcCurrPNL(tradeRecord, lastTradeRecord);
-            tradeRecord.setPnlForCurrTrade(currPNL).setNetPnl(calcNetPNL(currPNL, netPNL));
-        }
-        return tradeRecord;
-    }
-
-    public static float calcCurrPNL(TradeRecord tradeRecord, TradeRecord lastTradeRecord){
+    public static TradeRecord enrichTradeRecordWithPnl(TradeRecord tradeRecord, TradeRecord lastTradeRecord, float netPnl) {
         if (!tradeRecord.getBuyFlag()){
-            return  tradeRecord.getTradeQuantity() * (
-                    tradeRecord.getExecutedPrice() - lastTradeRecord.getExecutedPrice());
-        } else {return 0;}
-    }
-
-    public static TradeRecord updateTradeRecordWithPnls(TradeRecord trade, float currPnl, float netPnl){
-        if (!trade.getBuyFlag()) {return trade.setPnlForCurrTrade(currPnl).setNetPnl(netPnl); }
-        else {return trade; }
-    }
-
-    public static float calcNetPNL(float currPNL, float netPNL){
-        return netPNL + currPNL;
+            float currPnl = tradeRecord.getTradeQuantity() * (tradeRecord.getExecutedPrice() - lastTradeRecord.getExecutedPrice());
+            return tradeRecord.setPnlForCurrTrade(currPnl).setNetPnl(netPnl + currPnl);
+        }
+        else {return tradeRecord;}
     }
 
     private static void updateLastPrices(int m, int n, TimestampPrice latestPrice,
@@ -127,10 +100,8 @@ public class TradingImp {
         updateLastXPrices(n, latestPrice, lastNPrices);
     }
 
-    private static void updateLastXPrices(int x, TimestampPrice latestPrice, List<TimestampPrice> xPrices){
-        if (xPrices.size() >= x){
-            xPrices.remove(0);
-        }
+    private static void updateLastXPrices(int x, TimestampPrice latestPrice, List<TimestampPrice> xPrices) {
+        xPrices.remove(0);
         xPrices.add(latestPrice);
     }
 
